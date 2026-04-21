@@ -1,139 +1,933 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Aria Reception Live Test</title>
-    <meta
-      name="description"
-      content="Live testing frontend for the Online Appointment System chatbot."
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
-    <div class="page-shell">
-      <aside class="info-panel">
-        <div class="brand-block">
-          <div class="brand-mark" aria-hidden="true">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-          <div>
-            <p class="eyebrow">Live Voice Concierge</p>
-            <h1>Aria Reception Test Console</h1>
-          </div>
-        </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Greenfield Medical Centre — Aria AI Receptionist</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --sage: #4a7c59;
+      --sage-light: #6a9c79;
+      --sage-dark: #2d5038;
+      --cream: #f7f3ed;
+      --warm-white: #fdfaf6;
+      --charcoal: #2c2c2c;
+      --muted: #7a7a7a;
+      --border: #e0d9d0;
+      --accent: #c8956a;
+      --bubble-user: #4a7c59;
+      --bubble-ai: #ffffff;
+      --shadow: 0 4px 24px rgba(74,124,89,0.12);
+    }
 
-        <p class="lead">
-          Test your n8n medical booking assistant through a polished frontend
-          before connecting it to production channels.
-        </p>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        <div class="panel-card atmosphere-card">
-          <p class="panel-label">Connection</p>
-          <label class="field-label" for="webhookUrl">Webhook URL</label>
-          <input
-            id="webhookUrl"
-            class="field-input"
-            type="url"
-            autocomplete="off"
-            spellcheck="false"
-            value="https://n8n.srv1504760.hstgr.cloud/webhook/online-appointment-system"
-          />
-          <div class="connection-row">
-            <span class="status-dot" id="statusDot"></span>
-            <span id="statusText">Ready for live testing</span>
-          </div>
-        </div>
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--charcoal);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
-        <div class="panel-card">
-          <p class="panel-label">Quick Prompts</p>
-          <div class="prompt-grid" id="promptGrid">
-            <button class="prompt-chip" data-prompt="I want to book an appointment with Dr Hakimullah tomorrow morning. My name is Ali Khan, my phone is 03001234567, my email is ali@example.com, and the reason is fever.">
-              Book appointment
-            </button>
-            <button class="prompt-chip" data-prompt="Show me available slots for Dr Hakimullah on 2026-04-24.">
-              Ask for slots
-            </button>
-            <button class="prompt-chip" data-prompt="I want to cancel my appointment. My phone number is 03001234567.">
-              Cancel appointment
-            </button>
-            <button class="prompt-chip" data-prompt="I want to reschedule appointment id REPLACE_ME with Dr Hakimullah to 2026-04-27.">
-              Reschedule
-            </button>
-          </div>
-        </div>
+    /* ── Header ── */
+    header {
+      background: var(--warm-white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.05);
+    }
 
-        <div class="panel-card">
-          <p class="panel-label">Session</p>
-          <div class="meta-row">
-            <span>Session ID</span>
-            <code id="sessionIdLabel"></code>
-          </div>
-          <div class="meta-row">
-            <span>Stored turns</span>
-            <strong id="historyCount">0</strong>
-          </div>
-          <div class="meta-actions">
-            <button id="newSessionBtn" class="secondary-btn">New Session</button>
-            <button id="clearChatBtn" class="ghost-btn">Clear Chat</button>
-          </div>
-        </div>
-      </aside>
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-      <main class="chat-stage">
-        <section class="hero-strip">
-          <div>
-            <p class="eyebrow">Greenfield Medical Centre</p>
-            <h2>Test booking, cancellations, reschedules, and audio replies.</h2>
-          </div>
-          <div class="hero-badge">GitHub Pages Ready</div>
-        </section>
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--sage);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-        <section class="chat-shell">
-          <div class="chat-header">
-            <div>
-              <p class="chat-title">Conversation</p>
-              <p class="chat-subtitle">
-                Chat with the assistant and monitor voice replies in one place.
-              </p>
-            </div>
-            <button id="playLastAudioBtn" class="ghost-btn" disabled>
-              Play last audio
-            </button>
-          </div>
+    .logo-icon svg { width: 22px; height: 22px; fill: white; }
 
-          <div id="messages" class="messages" aria-live="polite"></div>
+    .logo-text h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--charcoal);
+      line-height: 1.2;
+    }
 
-          <div id="slotPickerPanel" class="slot-picker hidden"></div>
+    .logo-text span {
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
 
-          <form id="chatForm" class="composer">
-            <label class="sr-only" for="messageInput">Message</label>
-            <textarea
-              id="messageInput"
-              rows="1"
-              placeholder="Ask Aria to book, cancel, or reschedule an appointment..."
-            ></textarea>
-            <button id="sendBtn" class="send-btn" type="submit">Send</button>
-          </form>
-        </section>
-      </main>
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #e8f5ec;
+      border: 1px solid #b8ddc3;
+      color: var(--sage-dark);
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 100px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--sage);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.3); }
+    }
+
+    /* ── Layout ── */
+    .layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      flex: 1;
+      max-height: calc(100vh - 72px);
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      background: var(--warm-white);
+      border-right: 1px solid var(--border);
+      padding: 2rem 1.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .sidebar-section h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+    }
+
+    .aria-card {
+      background: linear-gradient(135deg, var(--sage-dark), var(--sage));
+      border-radius: 16px;
+      padding: 1.5rem;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .aria-card::before {
+      content: '';
+      position: absolute;
+      top: -30px;
+      right: -30px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .aria-card::after {
+      content: '';
+      position: absolute;
+      bottom: -20px;
+      left: -20px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .aria-avatar {
+      width: 52px;
+      height: 52px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+    }
+
+    .aria-card h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .aria-card p {
+      font-size: 0.8rem;
+      opacity: 0.85;
+      line-height: 1.5;
+    }
+
+    .quick-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .quick-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      cursor: pointer;
+      text-align: left;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      color: var(--charcoal);
+      transition: all 0.18s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .quick-btn:hover {
+      background: var(--cream);
+      border-color: var(--sage-light);
+      color: var(--sage-dark);
+      transform: translateX(2px);
+    }
+
+    .quick-btn .q-icon {
+      font-size: 1rem;
+      width: 24px;
+      text-align: center;
+    }
+
+    .info-card {
+      background: var(--cream);
+      border-radius: 12px;
+      padding: 1rem 1.2rem;
+      border: 1px solid var(--border);
+    }
+
+    .info-card h4 {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.6rem;
+    }
+
+    .info-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: var(--charcoal);
+      padding: 4px 0;
+    }
+
+    .info-row span:first-child { color: var(--sage); font-size: 0.9rem; }
+
+    /* ── Chat Area ── */
+    .chat-area {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      scroll-behavior: smooth;
+    }
+
+    .messages::-webkit-scrollbar { width: 6px; }
+    .messages::-webkit-scrollbar-track { background: transparent; }
+    .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ── Message Bubbles ── */
+    .msg {
+      display: flex;
+      gap: 10px;
+      max-width: 75%;
+      animation: fadeSlideIn 0.3s ease;
+    }
+
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+    .msg.ai { align-self: flex-start; }
+
+    .msg-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .msg.ai .msg-avatar {
+      background: var(--sage);
+      color: white;
+    }
+
+    .msg.user .msg-avatar {
+      background: var(--accent);
+      color: white;
+    }
+
+    .msg-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .msg-bubble {
+      padding: 12px 16px;
+      border-radius: 18px;
+      font-size: 0.88rem;
+      line-height: 1.6;
+    }
+
+    .msg.ai .msg-bubble {
+      background: var(--bubble-ai);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .msg.user .msg-bubble {
+      background: var(--bubble-user);
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .msg-time {
+      font-size: 0.7rem;
+      color: var(--muted);
+      padding: 0 4px;
+    }
+
+    .msg.user .msg-time { text-align: right; }
+
+    /* Typing indicator */
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 14px 18px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      border-bottom-left-radius: 4px;
+      width: fit-content;
+    }
+
+    .typing-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--sage-light);
+      border-radius: 50%;
+      animation: typingBounce 1.2s infinite;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+      30% { transform: translateY(-6px); opacity: 1; }
+    }
+
+    /* Welcome screen */
+    .welcome-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+      gap: 1.5rem;
+    }
+
+    .welcome-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--sage-dark), var(--sage-light));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      box-shadow: 0 8px 32px rgba(74,124,89,0.3);
+      animation: floatAnim 3s ease-in-out infinite;
+    }
+
+    @keyframes floatAnim {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .welcome-screen h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      color: var(--charcoal);
+    }
+
+    .welcome-screen h2 em {
+      color: var(--sage);
+      font-style: italic;
+    }
+
+    .welcome-screen p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      max-width: 340px;
+      line-height: 1.7;
+    }
+
+    .welcome-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      max-width: 400px;
+    }
+
+    .chip {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      color: var(--charcoal);
+      transition: all 0.18s ease;
+    }
+
+    .chip:hover {
+      background: var(--sage);
+      border-color: var(--sage);
+      color: white;
+      transform: scale(1.03);
+    }
+
+    /* ── Input Bar ── */
+    .input-bar {
+      background: var(--warm-white);
+      border-top: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+    }
+
+    .input-wrapper {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 10px 12px;
+      transition: border-color 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .input-wrapper:focus-within {
+      border-color: var(--sage);
+      box-shadow: 0 0 0 3px rgba(74,124,89,0.1);
+    }
+
+    #msgInput {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      color: var(--charcoal);
+      resize: none;
+      max-height: 100px;
+      line-height: 1.5;
+    }
+
+    #msgInput::placeholder { color: #b0a89e; }
+
+    .send-btn {
+      width: 38px;
+      height: 38px;
+      background: var(--sage);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.18s ease;
+    }
+
+    .send-btn:hover { background: var(--sage-dark); transform: scale(1.05); }
+    .send-btn:disabled { background: var(--border); cursor: not-allowed; transform: none; }
+    .send-btn svg { width: 18px; height: 18px; fill: white; }
+
+    .input-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      padding: 0 2px;
+    }
+
+    .input-footer span {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    #charCount { font-size: 0.72rem; color: var(--muted); }
+
+    /* ── Webhook Config Banner ── */
+    .config-banner {
+      background: #fff8f0;
+      border-bottom: 1px solid #f0dcc8;
+      padding: 10px 2rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.8rem;
+      color: #7a5c3a;
+    }
+
+    .config-banner input {
+      flex: 1;
+      max-width: 420px;
+      border: 1px solid #e8d4bb;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      color: var(--charcoal);
+      outline: none;
+      background: white;
+    }
+
+    .config-banner input:focus { border-color: var(--accent); }
+
+    .config-banner button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.15s;
+    }
+
+    .config-banner button:hover { background: #b07a52; }
+
+    .saved-tag {
+      background: #e8f5ec;
+      color: var(--sage-dark);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+    }
+
+    /* Error bubble */
+    .msg-bubble.error {
+      background: #fff0f0;
+      border-color: #ffc8c8;
+      color: #b03030;
+    }
+
+    /* Slot picker style */
+    .slots-container {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .slot-btn {
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      color: var(--charcoal);
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.15s;
+    }
+
+    .slot-btn:hover {
+      background: var(--sage);
+      color: white;
+      border-color: var(--sage);
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+    </div>
+    <div class="logo-text">
+      <h1>Greenfield Medical Centre</h1>
+      <span>Sydney, Australia</span>
+    </div>
+  </div>
+  <div class="status-badge">
+    <span class="status-dot"></span>
+    Aria is online
+  </div>
+</header>
+
+<!-- Webhook Config Banner -->
+<div class="config-banner" id="configBanner">
+  <span>🔗 Webhook URL:</span>
+  <input type="text" id="webhookInput" placeholder="https://your-n8n-instance.com/webhook/online-appointment-system" />
+  <button onclick="saveWebhook()">Save</button>
+  <span class="saved-tag" id="savedTag">✓ Saved</span>
+</div>
+
+<!-- Layout -->
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="aria-card">
+        <div class="aria-avatar">🌿</div>
+        <h2>Aria</h2>
+        <p>Your AI receptionist — book, cancel or reschedule appointments 24/7.</p>
+      </div>
     </div>
 
-    <template id="messageTemplate">
-      <article class="message">
-        <div class="message-meta"></div>
-        <div class="message-bubble"></div>
-      </article>
-    </template>
+    <div class="sidebar-section">
+      <h3>Quick Actions</h3>
+      <div class="quick-actions">
+        <button class="quick-btn" onclick="sendQuick('I would like to book an appointment')">
+          <span class="q-icon">📅</span> Book Appointment
+        </button>
+        <button class="quick-btn" onclick="sendQuick('I need to cancel my appointment')">
+          <span class="q-icon">❌</span> Cancel Appointment
+        </button>
+        <button class="quick-btn" onclick="sendQuick('I want to reschedule my appointment')">
+          <span class="q-icon">🔄</span> Reschedule
+        </button>
+        <button class="quick-btn" onclick="sendQuick('What doctors are available?')">
+          <span class="q-icon">👨‍⚕️</span> Available Doctors
+        </button>
+        <button class="quick-btn" onclick="sendQuick('What are your clinic hours?')">
+          <span class="q-icon">🕐</span> Clinic Hours
+        </button>
+      </div>
+    </div>
 
-    <script src="./app.js"></script>
-  </body>
+    <div class="sidebar-section">
+      <h3>Clinic Info</h3>
+      <div class="info-card">
+        <div class="info-row"><span>📍</span> 45 Greenfield Ave, Sydney</div>
+        <div class="info-row"><span>📞</span> (02) 9123 4567</div>
+        <div class="info-row"><span>🕘</span> Mon–Fri: 9am – 6pm</div>
+        <div class="info-row"><span>🚨</span> Emergency: Call 000</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Session</h3>
+      <div class="info-card">
+        <div class="info-row"><span>🆔</span> <span id="sessionIdDisplay">—</span></div>
+        <div class="info-row"><span>💬</span> <span id="msgCountDisplay">0 messages</span></div>
+      </div>
+      <button class="quick-btn" style="margin-top:8px; color:#c0392b; border-color:#f5c6c6;" onclick="clearChat()">
+        <span class="q-icon">🗑️</span> Clear Chat
+      </button>
+    </div>
+  </aside>
+
+  <!-- Chat Area -->
+  <div class="chat-area">
+    <div class="messages" id="messages">
+      <!-- Welcome Screen -->
+      <div class="welcome-screen" id="welcomeScreen">
+        <div class="welcome-icon">🌿</div>
+        <h2>Hello, I'm <em>Aria</em></h2>
+        <p>I'm Greenfield's AI receptionist. I can help you book, cancel, or reschedule appointments with our doctors — any time of day.</p>
+        <div class="welcome-chips">
+          <span class="chip" onclick="sendQuick('Book an appointment with a GP')">Book a GP visit</span>
+          <span class="chip" onclick="sendQuick('I want to see a specialist')">See a specialist</span>
+          <span class="chip" onclick="sendQuick('Cancel my appointment')">Cancel booking</span>
+          <span class="chip" onclick="sendQuick('What slots are available tomorrow?')">Tomorrow's slots</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input Bar -->
+    <div class="input-bar">
+      <div class="input-wrapper">
+        <textarea
+          id="msgInput"
+          rows="1"
+          placeholder="Type your message… (Press Enter to send)"
+          onkeydown="handleKey(event)"
+          oninput="onInput(this)"
+          maxlength="2000"
+        ></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>
+          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+      <div class="input-footer">
+        <span>Powered by GPT-4o · n8n workflow</span>
+        <span id="charCount">0 / 2000</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ── State ──
+  let history = [];
+  let sessionId = 'oas_' + Date.now();
+  let isLoading = false;
+  let webhookUrl = localStorage.getItem('oas_webhook') || '';
+  let msgCount = 0;
+
+  // ── Init ──
+  document.getElementById('webhookInput').value = webhookUrl;
+  document.getElementById('sessionIdDisplay').textContent = sessionId.slice(-8);
+  if (webhookUrl) document.getElementById('savedTag').style.display = 'inline';
+
+  function saveWebhook() {
+    webhookUrl = document.getElementById('webhookInput').value.trim();
+    localStorage.setItem('oas_webhook', webhookUrl);
+    const tag = document.getElementById('savedTag');
+    tag.style.display = 'inline';
+    setTimeout(() => tag.style.display = 'none', 2000);
+  }
+
+  // ── Input helpers ──
+  function onInput(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+    const len = el.value.length;
+    document.getElementById('charCount').textContent = len + ' / 2000';
+    document.getElementById('sendBtn').disabled = len === 0 || isLoading;
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  function sendQuick(text) {
+    document.getElementById('msgInput').value = text;
+    onInput(document.getElementById('msgInput'));
+    sendMessage();
+  }
+
+  // ── Render messages ──
+  function getTime() {
+    return new Date().toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function appendMessage(role, text, isError) {
+    const screen = document.getElementById('welcomeScreen');
+    if (screen) screen.remove();
+
+    const container = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = 'msg ' + role;
+
+    const avatarLetter = role === 'ai' ? 'A' : 'U';
+    div.innerHTML = `
+      <div class="msg-avatar">${avatarLetter}</div>
+      <div class="msg-content">
+        <div class="msg-bubble ${isError ? 'error' : ''}">${escapeHtml(text)}</div>
+        <span class="msg-time">${getTime()}</span>
+      </div>
+    `;
+
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+    msgCount++;
+    document.getElementById('msgCountDisplay').textContent = msgCount + ' message' + (msgCount !== 1 ? 's' : '');
+    return div;
+  }
+
+  function showTyping() {
+    const screen = document.getElementById('welcomeScreen');
+    if (screen) screen.remove();
+
+    const container = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = 'msg ai';
+    div.id = 'typing';
+    div.innerHTML = `
+      <div class="msg-avatar">A</div>
+      <div class="msg-content">
+        <div class="typing-indicator">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+    `;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function hideTyping() {
+    const el = document.getElementById('typing');
+    if (el) el.remove();
+  }
+
+  function escapeHtml(text) {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\n/g, '<br>');
+  }
+
+  // ── Send Message ──
+  async function sendMessage() {
+    const input = document.getElementById('msgInput');
+    const text = input.value.trim();
+    if (!text || isLoading) return;
+
+    if (!webhookUrl) {
+      alert('Please enter and save your n8n Webhook URL first (see the orange banner above).');
+      return;
+    }
+
+    // Clear input
+    input.value = '';
+    input.style.height = 'auto';
+    document.getElementById('charCount').textContent = '0 / 2000';
+    document.getElementById('sendBtn').disabled = true;
+
+    // Show user message
+    appendMessage('user', text);
+
+    // Update history
+    history.push({ role: 'user', content: text });
+
+    // Show typing
+    isLoading = true;
+    showTyping();
+
+    try {
+      const response = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text,
+          session_id: sessionId,
+          history: history.slice(-20)
+        })
+      });
+
+      hideTyping();
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const aiText = data.speech_text || data.text || data.message || JSON.stringify(data);
+
+      appendMessage('ai', aiText);
+      history.push({ role: 'assistant', content: aiText });
+
+    } catch (err) {
+      hideTyping();
+      appendMessage('ai', '⚠️ ' + (err.message || 'Could not reach the server. Please check your webhook URL.'), true);
+    }
+
+    isLoading = false;
+    document.getElementById('sendBtn').disabled = false;
+    input.focus();
+  }
+
+  // ── Clear Chat ──
+  function clearChat() {
+    if (!confirm('Clear this conversation?')) return;
+    history = [];
+    sessionId = 'oas_' + Date.now();
+    msgCount = 0;
+    document.getElementById('sessionIdDisplay').textContent = sessionId.slice(-8);
+    document.getElementById('msgCountDisplay').textContent = '0 messages';
+
+    const container = document.getElementById('messages');
+    container.innerHTML = `
+      <div class="welcome-screen" id="welcomeScreen">
+        <div class="welcome-icon">🌿</div>
+        <h2>Hello, I'm <em>Aria</em></h2>
+        <p>I'm Greenfield's AI receptionist. I can help you book, cancel, or reschedule appointments — any time of day.</p>
+        <div class="welcome-chips">
+          <span class="chip" onclick="sendQuick('Book an appointment with a GP')">Book a GP visit</span>
+          <span class="chip" onclick="sendQuick('I want to see a specialist')">See a specialist</span>
+          <span class="chip" onclick="sendQuick('Cancel my appointment')">Cancel booking</span>
+          <span class="chip" onclick="sendQuick('What slots are available tomorrow?')">Tomorrow's slots</span>
+        </div>
+      </div>
+    `;
+  }
+</script>
+
+</body>
 </html>
