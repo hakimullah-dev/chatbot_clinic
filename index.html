@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aria Reception Live Test</title>
+    <meta
+      name="description"
+      content="Live testing frontend for the Online Appointment System chatbot."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <aside class="info-panel">
+        <div class="brand-block">
+          <div class="brand-mark" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div>
+            <p class="eyebrow">Live Voice Concierge</p>
+            <h1>Aria Reception Test Console</h1>
+          </div>
+        </div>
+
+        <p class="lead">
+          Test your n8n medical booking assistant through a polished frontend
+          before connecting it to production channels.
+        </p>
+
+        <div class="panel-card atmosphere-card">
+          <p class="panel-label">Connection</p>
+          <label class="field-label" for="webhookUrl">Webhook URL</label>
+          <input
+            id="webhookUrl"
+            class="field-input"
+            type="url"
+            autocomplete="off"
+            spellcheck="false"
+            value="https://n8n.srv1504760.hstgr.cloud/webhook/online-appointment-system"
+          />
+          <div class="connection-row">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">Ready for live testing</span>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <p class="panel-label">Quick Prompts</p>
+          <div class="prompt-grid" id="promptGrid">
+            <button class="prompt-chip" data-prompt="I want to book an appointment with Dr Hakimullah tomorrow morning. My name is Ali Khan, my phone is 03001234567, my email is ali@example.com, and the reason is fever.">
+              Book appointment
+            </button>
+            <button class="prompt-chip" data-prompt="Show me available slots for Dr Hakimullah on 2026-04-24.">
+              Ask for slots
+            </button>
+            <button class="prompt-chip" data-prompt="I want to cancel my appointment. My phone number is 03001234567.">
+              Cancel appointment
+            </button>
+            <button class="prompt-chip" data-prompt="I want to reschedule appointment id REPLACE_ME with Dr Hakimullah to 2026-04-27.">
+              Reschedule
+            </button>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <p class="panel-label">Session</p>
+          <div class="meta-row">
+            <span>Session ID</span>
+            <code id="sessionIdLabel"></code>
+          </div>
+          <div class="meta-row">
+            <span>Stored turns</span>
+            <strong id="historyCount">0</strong>
+          </div>
+          <div class="meta-actions">
+            <button id="newSessionBtn" class="secondary-btn">New Session</button>
+            <button id="clearChatBtn" class="ghost-btn">Clear Chat</button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="chat-stage">
+        <section class="hero-strip">
+          <div>
+            <p class="eyebrow">Greenfield Medical Centre</p>
+            <h2>Test booking, cancellations, reschedules, and audio replies.</h2>
+          </div>
+          <div class="hero-badge">GitHub Pages Ready</div>
+        </section>
+
+        <section class="chat-shell">
+          <div class="chat-header">
+            <div>
+              <p class="chat-title">Conversation</p>
+              <p class="chat-subtitle">
+                Chat with the assistant and monitor voice replies in one place.
+              </p>
+            </div>
+            <button id="playLastAudioBtn" class="ghost-btn" disabled>
+              Play last audio
+            </button>
+          </div>
+
+          <div id="messages" class="messages" aria-live="polite"></div>
+
+          <div id="slotPickerPanel" class="slot-picker hidden"></div>
+
+          <form id="chatForm" class="composer">
+            <label class="sr-only" for="messageInput">Message</label>
+            <textarea
+              id="messageInput"
+              rows="1"
+              placeholder="Ask Aria to book, cancel, or reschedule an appointment..."
+            ></textarea>
+            <button id="sendBtn" class="send-btn" type="submit">Send</button>
+          </form>
+        </section>
+      </main>
+    </div>
+
+    <template id="messageTemplate">
+      <article class="message">
+        <div class="message-meta"></div>
+        <div class="message-bubble"></div>
+      </article>
+    </template>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
