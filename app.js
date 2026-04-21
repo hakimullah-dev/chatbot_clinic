@@ -161,6 +161,55 @@ function hideSlotPicker() {
   elements.slotPickerPanel.innerHTML = "";
 }
 
+function summarizeResponseBody(rawText) {
+  if (!rawText) return "The workflow returned an empty response body.";
+
+  const cleaned = rawText
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (!cleaned) {
+    return "The workflow returned a non-text response body.";
+  }
+
+  return cleaned.length > 220 ? `${cleaned.slice(0, 217)}...` : cleaned;
+}
+
+async function readResponsePayload(response) {
+  const contentType = response.headers.get("content-type") || "";
+  const rawText = await response.text();
+
+  if (!rawText) {
+    return { data: {}, rawText, contentType };
+  }
+
+  const looksLikeJson =
+    contentType.includes("application/json") || contentType.includes("+json");
+
+  if (looksLikeJson) {
+    try {
+      return { data: JSON.parse(rawText), rawText, contentType };
+    } catch (error) {
+      throw new Error(
+        `The workflow returned invalid JSON. ${summarizeResponseBody(rawText)}`,
+      );
+    }
+  }
+
+  try {
+    return { data: JSON.parse(rawText), rawText, contentType };
+  } catch {
+    return {
+      data: {
+        message: summarizeResponseBody(rawText),
+      },
+      rawText,
+      contentType,
+    };
+  }
+}
+
 function showSlotPicker(slotPicker) {
   if (!slotPicker || !Array.isArray(slotPicker.slots) || slotPicker.slots.length === 0) {
     hideSlotPicker();
@@ -229,10 +278,18 @@ async function sendMessage(text) {
       }),
     });
 
-    const data = await response.json();
+    const { data, rawText } = await readResponsePayload(response);
 
-    if (!response.ok || data.success === false) {
-      throw new Error(data.message || `Request failed with status ${response.status}`);
+    const responseMessage = data.message || summarizeResponseBody(rawText);
+
+    if (!response.ok) {
+      throw new Error(
+        `${response.status} ${response.statusText || "Request failed"}: ${responseMessage}`,
+      );
+    }
+
+    if (data.success === false) {
+      throw new Error(responseMessage || "The workflow reported a failure.");
     }
 
     state.history = Array.isArray(data.history) ? data.history : state.history;
